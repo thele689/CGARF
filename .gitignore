@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+*.secret
+secrets/
+
+# Runtime outputs
+data/
+results/
+logs/
+.cache/
+.test_tmp/
+demo_one_instance_output/
+repos/
+
+# External dependencies / local clones
+SWE-bench/
+external/
+vendor/
+
+# Local experiments
+qwen-test-*/
+test-mock-*/
+
+# Misc
+*.log
+*.tmp
+*.swp
