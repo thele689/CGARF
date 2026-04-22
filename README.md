@@ -1,5 +1,9 @@
 # CGARF
 
+[![CI](https://github.com/thele689/CGARF/actions/workflows/ci.yml/badge.svg)](https://github.com/thele689/CGARF/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](#python-and-installation)
+
 CGARF is a causality-guided automated program repair framework that couples:
 
 - `CG-MAD`: causal graph augmentation plus multi-agent debate for candidate reranking.
@@ -7,6 +11,22 @@ CGARF is a causality-guided automated program repair framework that couples:
 - `TSPF`: two-stage patch filtering with functional evidence plus causal/group ranking.
 
 This repository is a **clean public release** of the CGARF research codebase. It keeps the core implementation, tests, configuration, input files, and paper-facing technical appendices, while excluding local experiment artifacts, checked-out target repositories, cached datasets, demo outputs, logs, and any hard-coded secrets.
+
+## Highlights
+
+- Causality-aware reranking via CRG construction and CG-MAD.
+- Patch generation stabilized with structured self-reflection and consistency distillation.
+- Two-stage filtering that combines functional evidence with causal and group-level ranking.
+- Public release prepared for inspection, extension, and reproducible local experimentation.
+
+## Project Status and Scope
+
+This repository is aimed at **research reproduction and method inspection**, not at providing a single polished production CLI.
+
+- The code path follows the paper pipeline stage by stage.
+- Lightweight unit tests are included and run in public CI.
+- Full end-to-end evaluation still requires local preparation of target repositories, SWE-bench assets, and runtime outputs.
+- Some integration tests and scripts assume a prepared research environment and optional external tooling.
 
 ## What Is Included
 
@@ -59,12 +79,13 @@ CGARF/
 The current cleaned release is intended for **Python 3.10+**.
 
 ```bash
-git clone https://github.com/<your-account>/CGARF.git
+git clone https://github.com/thele689/CGARF.git
 cd CGARF
 
 python -m venv .venv
 source .venv/bin/activate
 
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 pip install -e .
 ```
@@ -193,6 +214,12 @@ pytest tests/
 
 Some integration tests assume local data, target repositories, or optional external tooling. For public CI, start with unit tests and selectively enable integration tests in a prepared environment.
 
+For the fastest local sanity check:
+
+```bash
+pytest tests/unit -q
+```
+
 ## Notes on Imports
 
 The current codebase keeps the historical package layout under `src`, so imports use the `src.*` namespace, for example:
@@ -211,6 +238,25 @@ Two paper-aligned appendix drafts are included in `docs/`:
 - `docs/APPENDIX_D_SRCD_FINAL_ZH.md`
 
 They are useful if you want the implementation-facing description to stay aligned with the released code.
+
+## Contributing
+
+Contributions are welcome, especially around:
+
+- reproducibility and environment setup improvements
+- documentation and code-path clarification
+- test coverage for phase-level components
+- bug fixes that keep the released pipeline behavior aligned with the paper
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+
+## Security
+
+If you find a security issue, please avoid opening a public issue with sensitive details first. See [SECURITY.md](SECURITY.md) for the preferred disclosure path.
+
+## Citation
+
+If this repository helps your work, please cite the CGARF paper and link to this repository release. The appendix drafts in `docs/` are included to keep the public implementation description aligned with the released code.
 
 ## License
 

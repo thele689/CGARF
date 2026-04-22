@@ -9,10 +9,15 @@ setup(
     name="cgarf",
     version="0.1.0",
     author="CGARF Contributors",
+    license="MIT",
     description="Causality-Guided Automated Program Repair Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/<your-account>/CGARF",
+    url="https://github.com/thele689/CGARF",
+    project_urls={
+        "Source": "https://github.com/thele689/CGARF",
+        "Issues": "https://github.com/thele689/CGARF/issues",
+    },
     packages=find_packages(),
     python_requires=">=3.10",
     install_requires=[
