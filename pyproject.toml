@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cgarf"
+version = "0.1.0"
+description = "Causality-Guided Automated Program Repair Framework"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "CGARF Contributors" }
+]
+urls = { Source = "https://github.com/thele689/CGARF", Issues = "https://github.com/thele689/CGARF/issues" }
+dynamic = ["dependencies"]
+
+[tool.setuptools]
+license-files = ["LICENSE"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+include = ["src", "src.*"]

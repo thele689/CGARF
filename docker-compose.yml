@@ -1,0 +1,15 @@
+services:
+  cgarf:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cgarf:dev
+    working_dir: /workspace/CGARF
+    environment:
+      PYTHONPATH: /workspace/CGARF
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - .:/workspace/CGARF
+    stdin_open: true
+    tty: true
+    command: bash

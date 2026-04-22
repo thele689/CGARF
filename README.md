@@ -96,6 +96,28 @@ For development and tests:
 pip install -r requirements-dev.txt
 ```
 
+For CPU-only environments, a lighter installation path is to preinstall a CPU-only PyTorch wheel before installing the rest of the requirements, because `sentence-transformers` depends on `torch`.
+
+## Docker Quick Start
+
+If you prefer to run the public release in a container:
+
+```bash
+docker build -t cgarf:dev .
+docker run --rm cgarf:dev pytest tests/unit -q
+```
+
+For an interactive shell with your working tree mounted:
+
+```bash
+docker run --rm -it \
+  --env-file .env \
+  -v "$(pwd)":/workspace/CGARF \
+  cgarf:dev
+```
+
+There is also a `docker-compose.yml` for convenience. See [docs/DOCKER.md](docs/DOCKER.md) for the full Docker workflow, including notes for running the official SWE-bench Docker harness from inside the container.
+
 ## Environment Variables
 
 Create a local `.env` file from `.env.example` and fill only the providers you actually use.
@@ -236,6 +258,7 @@ Two paper-aligned appendix drafts are included in `docs/`:
 
 - `docs/APPENDIX_C_CG_MAD_FINAL_ZH.md`
 - `docs/APPENDIX_D_SRCD_FINAL_ZH.md`
+- `docs/DOCKER.md`
 
 They are useful if you want the implementation-facing description to stay aligned with the released code.
 
