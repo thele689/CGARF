@@ -78,12 +78,78 @@ CGARF/
 
 The current cleaned release is intended for **Python 3.10+**.
 
+## Prerequisites
+
+CGARF requires Docker for SWE-bench-style validation and reproducible target
+repository execution. You can either build the release image locally or pull the
+image used by our experiment environment:
+
+```bash
+docker pull hejiaz/swe-agent:latest
+```
+
+CGARF also requires API access to an LLM. The unified runner includes built-in
+profiles for the OpenAI models used in our experiments:
+
+- `openai-gpt-4.1` -> `gpt-4.1`
+- `openai-gpt-4o` -> `gpt-4o`
+
+For OpenAI runs, users only need to provide `OPENAI_API_KEY`:
+
+```bash
+export OPENAI_API_KEY=key_here
+```
+
+Alternatively, create a local `key.cfg` file in the repository root:
+
+```bash
+cp key.cfg.example key.cfg
+```
+
+Then edit `key.cfg` so it contains:
+
+```bash
+OPENAI_API_KEY=key_here
+```
+
+`key.cfg` is ignored by git and is loaded automatically by `evaluation/run.py`.
+
+For open-source code models served through vLLM, CGARF uses the
+OpenAI-compatible API. Example servers:
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3 \
+vllm serve Qwen/Qwen2.5-Coder-32B-Instruct \
+  --download-dir /code-llm/Qwen \
+  --dtype half \
+  --max-model-len 32768 \
+  --gpu-memory-utilization 0.8 \
+  --tensor-parallel-size 4
+```
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3 \
+vllm serve Qwen/Qwen3-Coder-30B-Instruct \
+  --download-dir /code-llm/Qwen \
+  --dtype half \
+  --max-model-len 32768 \
+  --gpu-memory-utilization 0.8 \
+  --tensor-parallel-size 4
+```
+
+Then point CGARF to the local endpoint:
+
+```bash
+export VLLM_API_BASE=http://localhost:8000/v1
+export VLLM_API_KEY=EMPTY
+```
+
 ```bash
 git clone https://github.com/thele689/CGARF.git
 cd CGARF
 
-python -m venv .venv
-source .venv/bin/activate
+conda create -n cgarf python=3.10
+conda activate cgarf
 
 python -m pip install --upgrade pip
 pip install -r requirements.txt
@@ -131,6 +197,15 @@ python -m src.environment.benchmark \
 That entrypoint can build the image, start a persistent container bash session,
 and run smoke-test commands or unit tests against the mounted repository.
 
+You can also use the pulled experiment image:
+
+```bash
+python -m src.environment.benchmark \
+  --workspace-root . \
+  --image hejiaz/swe-agent:latest \
+  --action smoke-install
+```
+
 ## Environment Variables
 
 Create a local `.env` file from `.env.example` and fill only the providers you actually use.
@@ -138,6 +213,9 @@ Create a local `.env` file from `.env.example` and fill only the providers you a
 Common variables used by the codebase:
 
 - `OPENAI_API_KEY`
+- `OPENAI_API_BASE`
+- `VLLM_API_KEY`
+- `VLLM_API_BASE`
 - `QWEN_API_KEY`
 - `QWEN_API_BASE`
 - `SILICONFLOW_API_KEY`
@@ -157,7 +235,51 @@ Useful runtime controls:
 
 ## Quick Start by Phase
 
-The codebase is organized around the paper pipeline rather than a single polished CLI. The most direct public entrypoints are the batch runners for each paper stage.
+The easiest public entry point is the unified runner:
+
+```bash
+python evaluation/run.py \
+  --final_stage trace_analysis \
+  --instance_ids astropy__astropy-12907 astropy__astropy-6938
+```
+
+Add the patch-search stage:
+
+```bash
+python evaluation/run.py \
+  --final_stage search \
+  --instance_ids astropy__astropy-12907
+```
+
+Use GPT-4o instead of the default GPT-4.1 profile:
+
+```bash
+python evaluation/run.py \
+  --model-profile openai-gpt-4o \
+  --final_stage trace_analysis \
+  --instance_ids astropy__astropy-12907
+```
+
+Use a local vLLM server:
+
+```bash
+python evaluation/run.py \
+  --model-profile vllm-qwen3-coder-30b \
+  --final_stage search \
+  --instance_ids astropy__astropy-12907
+```
+
+Available `--final_stage` values are:
+
+- `crg`: build the causal relevance graph and initialize edge weights.
+- `trace_analysis`: run CRG construction plus CG-MAD.
+- `srcd_initial`: generate initial SRCD patches.
+- `reflection`: run structured self-reflection.
+- `search`: run SRCD through consistency distillation.
+- `tspf`: run two-stage patch filtering on distilled patches.
+
+The lower-level batch runners remain available when you want to inspect or rerun
+one stage manually.
 
 ### 1. Phase 1: CRG Construction
 

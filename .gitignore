@@ -23,6 +23,8 @@ env/
 # Environment and secrets
 .env
 .env.*
+!.env.example
+key.cfg
 *.pem
 *.key
 *.secret

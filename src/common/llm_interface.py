@@ -351,16 +351,27 @@ Patch (round {round}):"""
 
 
 class OpenAILLMInterface(LLMInterface):
-    """OpenAI API implementation"""
+    """OpenAI or OpenAI-compatible chat completions API implementation."""
 
-    def __init__(self, model_name: str = "gpt-4", api_key: Optional[str] = None):
+    def __init__(
+        self,
+        model_name: str = "gpt-4.1",
+        api_key: Optional[str] = None,
+        api_base: Optional[str] = None,
+    ):
         super().__init__(model_name)
-        
+
         try:
-            import openai
-            if api_key:
-                openai.api_key = api_key
-            self.client = openai.OpenAI()
+            from openai import OpenAI
+
+            resolved_api_key = api_key or os.getenv("OPENAI_API_KEY")
+            resolved_api_base = api_base or os.getenv("OPENAI_API_BASE")
+            client_kwargs = {"api_key": resolved_api_key}
+            if resolved_api_base:
+                client_kwargs["base_url"] = resolved_api_base
+            self.api_key = resolved_api_key
+            self.api_base = resolved_api_base
+            self.client = OpenAI(**client_kwargs)
         except ImportError:
             raise ImportError("openai package required. Install with: pip install openai")
 
@@ -720,8 +731,12 @@ class QwenLLMInterface(LLMInterface):
 
 def create_llm_interface(provider: str, model_name: str, **kwargs) -> LLMInterface:
     """Factory function to create LLM interface"""
-    
+
     if provider == "openai":
+        return OpenAILLMInterface(model_name, **kwargs)
+    elif provider in {"vllm", "openai-compatible"}:
+        kwargs.setdefault("api_key", os.getenv("VLLM_API_KEY", "EMPTY"))
+        kwargs.setdefault("api_base", os.getenv("VLLM_API_BASE", "http://localhost:8000/v1"))
         return OpenAILLMInterface(model_name, **kwargs)
     elif provider == "qwen":
         return QwenLLMInterface(model_name, **kwargs)

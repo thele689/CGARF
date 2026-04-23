@@ -1,0 +1,8 @@
+# Copy this file to key.cfg and fill your local credentials.
+# key.cfg is ignored by git and loaded automatically by evaluation/run.py.
+
+OPENAI_API_KEY=key_here
+
+# Optional vLLM OpenAI-compatible endpoint.
+VLLM_API_BASE=http://localhost:8000/v1
+VLLM_API_KEY=EMPTY

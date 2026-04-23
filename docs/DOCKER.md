@@ -22,6 +22,13 @@ It also preinstalls a **CPU-only PyTorch wheel** before the rest of the Python s
 docker build -t cgarf:dev .
 ```
 
+For the experiment environment used with SWE-bench-style execution, you may
+also pull the prebuilt image:
+
+```bash
+docker pull hejiaz/swe-agent:latest
+```
+
 Because the repository depends on modern NLP / LLM-related Python packages, the Python dependency layer can still take a while to resolve on a cold build.
 
 ## Run Unit Tests in the Container
@@ -91,6 +98,15 @@ python -m src.environment.benchmark \
   --action test
 ```
 
+Or run a smoke import check in the pulled experiment image:
+
+```bash
+python -m src.environment.benchmark \
+  --workspace-root . \
+  --image hejiaz/swe-agent:latest \
+  --action smoke-install
+```
+
 Run an arbitrary command inside the container task environment:
 
 ```bash
@@ -117,6 +133,9 @@ These are intentionally excluded from version control. Create and mount them loc
 If you call LLM-backed stages from inside the container, provide a local `.env` file or pass variables explicitly. Common examples include:
 
 - `OPENAI_API_KEY`
+- `OPENAI_API_BASE`
+- `VLLM_API_KEY`
+- `VLLM_API_BASE`
 - `QWEN_API_KEY`
 - `SILICONFLOW_API_KEY`
 - `DASHSCOPE_API_KEY`
