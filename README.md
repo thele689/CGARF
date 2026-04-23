@@ -164,48 +164,6 @@ pip install -r requirements-dev.txt
 
 For CPU-only environments, a lighter installation path is to preinstall a CPU-only PyTorch wheel before installing the rest of the requirements, because `sentence-transformers` depends on `torch`.
 
-## Docker Quick Start
-
-If you prefer to run the public release in a container:
-
-```bash
-docker build -t cgarf:dev .
-docker run --rm cgarf:dev pytest tests/unit -q
-```
-
-For an interactive shell with your working tree mounted:
-
-```bash
-docker run --rm -it \
-  --env-file .env \
-  -v "$(pwd)":/workspace/CGARF \
-  cgarf:dev
-```
-
-There is also a `docker-compose.yml` for convenience. See [docs/DOCKER.md](docs/DOCKER.md) for the full Docker workflow, including notes for running the official SWE-bench Docker harness from inside the container.
-
-If you want a repository-native Docker task wrapper inspired by the benchmark
-environment style used in other APR systems, CGARF now also exposes:
-
-```bash
-python -m src.environment.benchmark \
-  --workspace-root . \
-  --image cgarf:dev \
-  --action test
-```
-
-That entrypoint can build the image, start a persistent container bash session,
-and run smoke-test commands or unit tests against the mounted repository.
-
-You can also use the pulled experiment image:
-
-```bash
-python -m src.environment.benchmark \
-  --workspace-root . \
-  --image hejiaz/swe-agent:latest \
-  --action smoke-install
-```
-
 ## Environment Variables
 
 Create a local `.env` file from `.env.example` and fill only the providers you actually use.
