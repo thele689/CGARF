@@ -1,105 +1,82 @@
-# CGARF Default Configuration
-
 project:
   name: cgarf
   version: 0.1.0
 
-# LLM Model Configuration
 model:
-  provider: "openai"  # openai, anthropic, azure, local
-  localization:
-    primary: "gpt-4"
-    alternatives:
-      - "gpt-3.5-turbo"
-  
-  patch_generation:
-    primary: "qwen3-coder-30b"
-    alternatives:
-      - "qwen2.5-coder-32b"
-      - "gpt-4"
-  
-  embedding: "qwen3-embedding-0.6b"
-  
-  # Model parameters
-  temperature: 0.7
-  max_tokens: 2000
+  provider: "openai"   # openai, anthropic, azure, local
 
-# CGARF Configuration
-cgarf:
-  # CG-MAD (Causal Graph-augmented Multi-Agent Debate)
-  cg_mad:
-    # Edge weight update parameters
-    eta1: 0.2    # Initial structure weight
-    eta2: 0.4    # Path-level debate weight
-    eta3: 0.4    # Candidate-level debate weight
-    
-    # Debate parameters
-    debate_max_rounds: 5
-    convergence_threshold: 3  # Consecutive wins to stop early
-    
-    # Path credibility
-    length_penalty: 0.1  # λ for length penalty in Cred(π)
-    geometric_mean_power: true
+  debate_model: "gpt-4.1"
+  judging_model: "gpt-4.1"
+  summarization_model: "gpt-4.1"
+  generation_model: "gpt-4.1"
+  embedding_model: "qwen3-embedding-0.6b"
+
+  max_tokens: 4096
   
-  # SRCD (Self-Reflection Consistency Distillation)
+cgarf:
+  cg_mad:
+    eta1: 0.2
+    eta2: 0.4
+    eta3: 0.4
+
+    max_rounds: 5
+    early_stop_consecutive_wins: 3
+
+    length_penalty_lambda: 0.1
+
   srcd:
-    # Resource allocation
-    sampling_budget: 30  # Total patches to generate per location
-    
-    # Reflection evaluation
-    reflection_threshold: 0.6  # δ for temperature adjustment
-    
-    # Reflection weights
-    weights:
+    total_sampling_budget: 30   # total budget across candidate locations
+    reflection_threshold: 0.6
+
+    reflection_weights:
       semantic: 0.2
       causal: 0.4
       minimal: 0.2
-    
-    # Consistency distillation
-    consistency_alpha: 0.8      # Weight for consensus pattern match
-    penalty_beta: 0.5           # Weight for distribution penalty
-    top_k_patches: 5            # Number of patches to retain
-  
-  # TSPF (Two-Stage Patch Filtering)
+
+    consistency_alpha: 0.8
+    penalty_beta: 0.5
+    top_k_patches: 5
+
+    # optional implementation defaults; may be overridden by reflection
+    default_generation_temperature: 0.7
+
   tspf:
-    # Ranking weights
-    causal_weight: 0.7          # μ for final ranking formula
-    similarity_weight: 0.3
-    
-    # Testing parameters
-    test_timeout: 120  # Seconds
-    
-  # General parameters
-  random_seed: 42
+    mu: 0.7
+    test_timeout: 120
+    enable_regression_test: true
+    enable_reproduction_test: true
+
   debug_mode: false
 
-# Experiment Configuration
 experiment:
-  dataset: "swe-bench-lite"  # swe-bench-lite or swe-bench-verified
-  subset_size: null          # null for full dataset, or specify number
+  dataset: "swe-bench-lite"
+  subset_size: null
   num_runs: 10
-  
-  # Evaluation metrics
+  seed_base: 42
+
   metrics:
     - "resolved_percent"
     - "apply_percent"
-    - "top_1_accuracy"
+    - "top_1"
     - "map"
     - "mrr"
-  
-  # Statistical testing
-  statistical_significance:
-    method: "mcnemar"  # mcnemar or bootstrap
-    bootstrap_samples: 10000
-    confidence_level: 0.95
 
-# Logging Configuration
+  statistical_significance:
+    paired_bootstrap:
+      enabled: true
+      samples: 10000
+      confidence_level: 0.95
+    mcnemar:
+      enabled: true
+    multiple_comparison:
+      method: "holm-bonferroni"
+      alpha: 0.05
+
 logging:
-  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
   file: "logs/cgarf.log"
   format: "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}"
 
-# Paths
 paths:
   root_dir: "./"
   results_dir: "results/"
