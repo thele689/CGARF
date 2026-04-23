@@ -118,6 +118,19 @@ docker run --rm -it \
 
 There is also a `docker-compose.yml` for convenience. See [docs/DOCKER.md](docs/DOCKER.md) for the full Docker workflow, including notes for running the official SWE-bench Docker harness from inside the container.
 
+If you want a repository-native Docker task wrapper inspired by the benchmark
+environment style used in other APR systems, CGARF now also exposes:
+
+```bash
+python -m src.environment.benchmark \
+  --workspace-root . \
+  --image cgarf:dev \
+  --action test
+```
+
+That entrypoint can build the image, start a persistent container bash session,
+and run smoke-test commands or unit tests against the mounted repository.
+
 ## Environment Variables
 
 Create a local `.env` file from `.env.example` and fill only the providers you actually use.

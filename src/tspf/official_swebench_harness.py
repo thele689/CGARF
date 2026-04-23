@@ -199,6 +199,7 @@ class OfficialSWEbenchHarnessAdapter:
 import importlib
 import json
 import sys
+from src.environment.utils import probe_docker_environment
 missing = []
 import_errors = {}
 for name in ["docker", "datasets", "swebench", "unidiff", "ghapi", "jsonlines", "loguru"]:
@@ -207,16 +208,16 @@ for name in ["docker", "datasets", "swebench", "unidiff", "ghapi", "jsonlines", 
     except Exception as exc:
         missing.append(name)
         import_errors[name] = repr(exc)
-docker_ok = False
-details = ""
-if "docker" not in missing:
-    try:
-        import docker
-        docker.from_env().ping()
-        docker_ok = True
-    except Exception as exc:
-        details = str(exc)
-print(json.dumps({"missing": missing, "import_errors": import_errors, "docker_ok": docker_ok, "details": details}))
+docker_probe = probe_docker_environment().to_dict()
+docker_ok = bool(docker_probe.get("daemon_available", False))
+details = docker_probe.get("details", "")
+print(json.dumps({
+    "missing": missing,
+    "import_errors": import_errors,
+    "docker_ok": docker_ok,
+    "details": details,
+    "docker_probe": docker_probe,
+}))
 sys.exit(0 if not missing and docker_ok else 1)
 """.strip()
         env = self._subprocess_env()
@@ -237,6 +238,7 @@ sys.exit(0 if not missing and docker_ok else 1)
             details = json.dumps(
                 {
                     "docker": parsed.get("details", ""),
+                    "docker_probe": parsed.get("docker_probe", {}),
                     "import_errors": parsed.get("import_errors", {}),
                 },
                 ensure_ascii=False,

@@ -61,6 +61,46 @@ Run unit tests:
 docker compose run --rm cgarf pytest tests/unit -q
 ```
 
+## Repository-Native Benchmark Environment Wrapper
+
+Inspired by the Docker benchmark environment pattern used in other APR
+projects, CGARF now includes:
+
+- `src.environment.utils`
+- `src.environment.benchmark`
+
+The wrapper supports Docker daemon preflight checks, image existence checks,
+persistent bash sessions, timeout-aware command execution, and simple smoke
+tests against the mounted CGARF repository.
+
+Build or verify the image:
+
+```bash
+python -m src.environment.benchmark \
+  --workspace-root . \
+  --image cgarf:dev \
+  --action build
+```
+
+Run unit tests through the wrapper:
+
+```bash
+python -m src.environment.benchmark \
+  --workspace-root . \
+  --image cgarf:dev \
+  --action test
+```
+
+Run an arbitrary command inside the container task environment:
+
+```bash
+python -m src.environment.benchmark \
+  --workspace-root . \
+  --image cgarf:dev \
+  --action run \
+  --command "python -m src.tspf.batch_tspf --help"
+```
+
 ## Expected Local Directories for Larger Runs
 
 For end-to-end or paper-style runs, you will usually want local directories such as:
